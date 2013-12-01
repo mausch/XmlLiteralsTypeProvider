@@ -36,12 +36,8 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Compile Include="..\..\Shared\ProvidedTypes-head.fsi">
-      <Link>ProvidedTypes-head.fsi</Link>
-    </Compile>
-    <Compile Include="..\..\Shared\ProvidedTypes-head.fs">
-      <Link>ProvidedTypes-head.fs</Link>
-    </Compile>
+    <Compile Include="ProvidedTypes-head.fsi" />
+    <Compile Include="ProvidedTypes-head.fs" />
     <Compile Include="Module1.fs" />
   </ItemGroup>
   <ItemGroup>
