@@ -60,44 +60,38 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
         let html = args.[0] :?> string
         let xelem = Impl.loadXml html
         let ty = ProvidedTypeDefinition(typeName, Some baseTy, IsErased = false)
-        let templateField = ProvidedLiteralField("__template", typeof<string>, html)
+        let templateField = ProvidedField("__template", typeof<string>)
+        templateField.SetFieldAttributes FieldAttributes.InitOnly
         ty.AddMember templateField
         let texts = Impl.getTextSplices xelem |> Seq.toList
         let fields = texts |> Seq.map (fun s -> ProvidedField(s, typeof<string>)) |> Seq.toList
+        for f in fields do
+            f.SetFieldAttributes FieldAttributes.InitOnly
         ty.AddMembers fields
         let ctorBody (args: Expr list) : Expr = 
             let this = args.[0]
-//            let this = Var("__this", ty)
-//            let thisExpr = Expr.Var this
-            //let newInstance = Expr.Coerce(<@@ FormatterServices.GetUninitializedObject ty @@>, ty)
+            let setTemplate this = Expr.FieldSet(this, templateField, Expr.Value html)
             let setFields this =
                 Seq.zip fields (Seq.skip 1 args)
                 |> Seq.map (fun (f,a) -> Expr.FieldSet(this, f, a))
-                |> Seq.fold (fun b e -> Expr.Sequential(b,e)) <@@ () @@>
-            //let setField = Expr.FieldSet(thisExpr, field, Expr.Value xelem)
-            //Expr.Let(this, newInstance, Expr.Sequential(setFields thisExpr, thisExpr))
-            //newInstance
+                |> Seq.fold (fun b e -> Expr.Sequential(b,e)) (setTemplate this) // <@@ () @@>
             setFields this
         let ctorParams = texts |> Seq.map (fun s -> ProvidedParameter(s, typeof<string>)) |> Seq.toList
         let ctor  = ProvidedConstructor(ctorParams, InvokeCode = ctorBody)
         ty.AddMember ctor
         let render (this: Expr) : XElement Expr =
             <@
-                let templateHtml: string = (%%Expr.FieldGet(templateField))
-                Impl.loadXml templateHtml
-            @>
-//            <@@
-//                for textElem in (%template).Descendants(Impl.textElemName) do
+                let templateHtml: string = (%%Expr.FieldGet(this, templateField))
+                let template = Impl.loadXml templateHtml
+//                for textElem in template.Descendants(Impl.textElemName) do
 //                    let name = textElem.Attribute(XName.Get "name").Value
 //                    let newValue = "hello!"
 //                    textElem.ReplaceWith(XText(newValue))
-//                %template
-//            @@>
+                template
+            @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
         ty.AddMember methods
         htmlTy.AddMember ty
-        assembly.AddTypes [ty]
-        assembly.AddNestedTypes([ty], [typeName])
         ty
 
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
