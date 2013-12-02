@@ -121,6 +121,9 @@ module Impl =
         t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
 
+    // this isn't used apparently, but it throws a compile-time error if removed:
+    // FSC : error FS2014: A problem occurred writing the binary 'obj\Debug\ConsoleApplication2.exe': Error in pass3 for type FSharpLib, error: One of your modules
+    // expects the type 'FSharpLib.Template' to be defined within the module being emitted.  You may be missing an input file
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
     let providedAssembly = 
         let a = new ProvidedAssembly(providedAssemblyName)
