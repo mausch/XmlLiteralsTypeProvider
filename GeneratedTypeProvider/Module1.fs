@@ -101,37 +101,6 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                     Impl.replaceText "title" (%%(Expr.FieldGet(this, fields.[0]))) template
                 @>
             templateExpr
-//            let replace (t: XElement Expr) (f: ProvidedField) =
-//                <@@
-//                    let () =
-//                        let textElems = (%t).Descendants(Impl.textElemName) |> Seq.toList |> List.toSeq
-//                        // for i in xxx do () // for loops don't seem to be supported in code generation
-//                        let e = textElems.GetEnumerator()
-//                        while (e.MoveNext()) do
-//                            let nameAttr = e.Current.Attribute(XName.Get "name")
-//                            if nameAttr = null then failwith "Name attribute not found"
-//                            let name = nameAttr.Value
-//                            let newValue: string = (%%Expr.FieldGet(this, f))
-//                            e.Current.ReplaceWith(XText(newValue))
-//                    ()
-//                @@>
-//            let replaceExprs = Seq.map (replace templateExpr) fields
-//            let replaceExprs2 = Seq.fold (fun a b -> Expr.Sequential(a,b)) <@@ () @@> replaceExprs
-//            Expr.Cast<XElement>(Expr.Sequential(replaceExprs2, templateExpr))
-            //unbox 0
-                
-//
-//                let textElems = template.Descendants(Impl.textElemName) |> Seq.toList |> List.toSeq
-//                // for i in xxx do () // for loops don't seem to be supported in code generation
-//                let e = textElems.GetEnumerator()
-//                while (e.MoveNext()) do
-//                    let nameAttr = e.Current.Attribute(XName.Get "name")
-//                    if nameAttr = null then failwith "Name attribute not found"
-//                    let name = nameAttr.Value
-//                    let newValue: string = (%%Expr.FieldGet(this, fields |> List.find (fun f -> f.Name = (%name))))
-//                    e.Current.ReplaceWith(XText(newValue))
-//                template
-//            @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
         ty.AddMember methods
         htmlTy.AddMember ty
