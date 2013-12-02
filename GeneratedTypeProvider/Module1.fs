@@ -101,7 +101,7 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 let templateHtml: string = (%%Expr.FieldGet(this, templateField))
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
-                let reflectedFields = thisType.GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic) |> Array.toSeq
+                let reflectedFields = getFields thisType
 //                for f in reflectedFields do
 //                    replaceText f.Name (unbox (f.GetValue((%%this:obj)))) template
                 template
