@@ -49,31 +49,30 @@ module Impl =
         let xelem = XElement.Load reader
         xelem
 
+    let getNameOrFail (e: XElement) =
+        let nameAttr = e.Attribute(XName.Get "name")
+        if nameAttr = null then 
+            failwithf "Element %s is missing the required 'name' attribute" e.Name.LocalName
+        nameAttr.Value
+
     let getTextSplices (x: XElement) =
-        if x = null then nullArg "x"
         x.Descendants(textElemName)
-        |> Seq.map (fun e -> 
-                        let nameAttr = e.Attribute(XName.Get "name")
-                        if nameAttr = null then 
-                            failwithf "Element %s is missing the required 'name' attribute" e.Name.LocalName
-                        nameAttr.Value)
+        |> Seq.map getNameOrFail
         |> Seq.distinct
 
     // In-place text replace
-    let replaceText (name: string) (value: string) (template: XElement) =
+    let replaceText name (newText: string) (template: XElement) =
         let textElems = 
             template.Descendants(textElemName)
-            |> Seq.where (fun e -> 
-                            let nameAttr = e.Attribute(XName.Get "name")
-                            nameAttr <> null && nameAttr.Value = name)
+            |> Seq.where (fun e -> getNameOrFail e = name)
             |> Seq.toList
         for e in textElems do
-            e.ReplaceWith(XText(value))
+            e.ReplaceWith(XText(newText))
 
     let getFields (ty: Type) =
         ty.GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic) |> Array.toSeq
 
-    let replaceTextByField (this: 'a) template (f: FieldInfo) =
+    let replaceTextByField this template (f: FieldInfo) =
         let value = f.GetValue this
         replaceText f.Name (unbox value) template
 
@@ -102,11 +101,11 @@ module Impl =
 
         let render (this: Expr) : XElement Expr =
             <@
-                let templateHtml: string = (%%Expr.FieldGet(this, templateField))
+                let templateHtml: string = %%Expr.FieldGet(this, templateField)
                 let template = loadXml templateHtml
-                let thisType = (%(Expr.ValueT (ty :> Type)))
+                let thisType = %(Expr.ValueT (ty :> Type))
                 let reflectedFields = getFields thisType
-                let thisObj : obj = (%%(Expr.Coerce(this, typeof<obj>)) : obj)
+                let thisObj: obj = %%(Expr.Coerce(this, typeof<obj>))
                 reflectedFields |> Seq.iter (replaceTextByField thisObj template)
                 template
             @>
