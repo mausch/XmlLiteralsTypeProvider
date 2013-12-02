@@ -77,19 +77,7 @@ module Impl =
         let value = f.GetValue this
         replaceText f.Name (unbox value) template
 
-
-open Impl
-
-[<TypeProvider>]
-type public HtmlProvider(cfg:TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
-
-    // Get the assembly and namespace used to house the provided types
-    let thisAssembly =  Assembly.GetExecutingAssembly()
-    let rootNamespace = "Samples.ShareInfo.TPTest"
-
-    let htmlTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
-    let buildType (assembly: ProvidedAssembly) typeName (args: obj[]) =
+    let internal buildType typeName (args: obj[]) =
         let html = args.[0] :?> string
         let xelem = loadXml html
         let ty = ProvidedTypeDefinition(typeName, Some typeof<obj>, IsErased = false)
@@ -123,11 +111,23 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
         ty.AddMember methods
         ty
 
+open Impl
+
+[<TypeProvider>]
+type public HtmlProvider(cfg:TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces()
+
+    // Get the assembly and namespace used to house the provided types
+    let thisAssembly =  Assembly.GetExecutingAssembly()
+    let rootNamespace = "Samples.ShareInfo.TPTest"
+
+    let htmlTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
+
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
     let providedAssembly = new ProvidedAssembly(providedAssemblyName)
 
     do 
-        htmlTy.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType providedAssembly)
+        htmlTy.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType)
         providedAssembly.AddTypes [htmlTy]
         htmlTy.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         this.AddNamespace(rootNamespace, [htmlTy])
