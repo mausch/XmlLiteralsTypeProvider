@@ -25,6 +25,9 @@ module Impl =
                 r
             x.DefineStaticParameters(parameters, builder)
 
+    let internal createProvidedInstanceMethod methodName parameters (body: (Expr * Expr list) -> 'a Expr) =
+        ProvidedMethod(methodName, parameters, typeof<'a>, InvokeCode = fun args -> body (args.[0], Seq.skip 1 args |> Seq.toList) :> _) :> MemberInfo
+
     [<Literal>]
     let xmlns = "http://www.example.com/XmlLiteralsTypeProvider"
 
@@ -99,7 +102,7 @@ module Impl =
         let ctorParams = texts |> Seq.map (fun s -> ProvidedParameter(s, typeof<string>)) |> Seq.toList
         ty.AddMember(ProvidedConstructor(ctorParams, InvokeCode = ctorBody))
 
-        let render (this: Expr) : XElement Expr =
+        let render (this: Expr) =
             <@
                 let templateXml: string = %%Expr.FieldGet(this, templateField)
                 let template = loadXml templateXml
@@ -109,8 +112,8 @@ module Impl =
                 reflectedFields |> Seq.iter (replaceTextByField thisObj template)
                 template
             @>
-        let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
-        ty.AddMember methods
+        let renderMethod = createProvidedInstanceMethod "Render" [] (fun (this,_) -> render this)
+        ty.AddMember renderMethod
         ty
 
     // Get the assembly and namespace used to house the provided types
