@@ -81,14 +81,17 @@ module Impl =
         let html = args.[0] :?> string
         let xelem = loadXml html
         let ty = ProvidedTypeDefinition(typeName, Some typeof<obj>, IsErased = false)
+
         let templateField = ProvidedField("__template", typeof<string>)
         templateField.SetFieldAttributes FieldAttributes.InitOnly
         ty.AddMember templateField
+
         let texts = getTextSplices xelem |> Seq.distinct |> Seq.toList
         let fields = texts |> Seq.map (fun s -> ProvidedField(s, typeof<string>)) |> Seq.toList
         for f in fields do
             f.SetFieldAttributes FieldAttributes.InitOnly
         ty.AddMembers fields
+
         let ctorBody (args: Expr list) : Expr = 
             let this = args.[0]
             let setTemplate = Expr.FieldSet(this, templateField, Expr.Value html)
@@ -96,12 +99,14 @@ module Impl =
             Expr.Sequentials [yield setTemplate; yield! setFields]
         let ctorParams = texts |> Seq.map (fun s -> ProvidedParameter(s, typeof<string>)) |> Seq.toList
         ty.AddMember(ProvidedConstructor(ctorParams, InvokeCode = ctorBody))
+
         let render (this: Expr) : XElement Expr =
             <@
                 let templateHtml: string = (%%Expr.FieldGet(this, templateField))
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
                 let reflectedFields = getFields thisType
+                reflectedFields |> Seq.iter (fun f -> printfn "%s" f.Name)
                 //let thisObj : obj = (%%(Expr.Coerce(this, ty)) : obj)
                 //let thisObj : obj = box %%this
                 //reflectedFields |> Seq.iter (replaceTextByField (%%this) template)
