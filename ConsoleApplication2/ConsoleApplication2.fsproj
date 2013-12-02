@@ -51,8 +51,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HtmlTypeProvider\HtmlTypeProvider.fsproj">
-      <Name>HtmlTypeProvider</Name>
+    <ProjectReference Include="..\XmlLiteralsTypeProvider\XmlLiteralsTypeProvider.fsproj">
+      <Name>XmlLiteralsTypeProvider</Name>
       <Project>{f3c4e999-644b-4369-862c-a6337f9a4c87}</Project>
       <Private>True</Private>
     </ProjectReference>

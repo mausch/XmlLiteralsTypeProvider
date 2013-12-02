@@ -10,7 +10,7 @@
     <RootNamespace>GeneratedTypeProvider</RootNamespace>
     <AssemblyName>GeneratedTypeProvider</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>HtmlTypeProvider</Name>
+    <Name>XmlLiteralsTypeProvider</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
