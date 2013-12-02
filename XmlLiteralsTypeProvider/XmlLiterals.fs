@@ -115,7 +115,7 @@ module Impl =
 
     // Get the assembly and namespace used to house the provided types
     let thisAssembly =  Assembly.GetExecutingAssembly()
-    let rootNamespace = "Samples.ShareInfo.TPTest"
+    let rootNamespace = "XmlLiterals"
 
     let internal xmlTy = 
         let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Xml", Some typeof<obj>, IsErased = false)
