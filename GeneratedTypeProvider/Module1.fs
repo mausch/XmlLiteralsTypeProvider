@@ -98,7 +98,7 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 <@
                     let templateHtml: string = (%%Expr.FieldGet(this, templateField))
                     let template = Impl.loadXml templateHtml
-                    Impl.replaceText "title" (%%(Expr.FieldGet(this, fields.[0]))) template
+                    Impl.replaceText (%%(Expr.Value fields.[0].Name)) (%%(Expr.FieldGet(this, fields.[0]))) template
                 @>
             templateExpr
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
