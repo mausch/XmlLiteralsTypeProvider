@@ -1,5 +1,6 @@
 ﻿namespace Samples.FSharp.ShareInfoProvider
 
+open System
 open System.Reflection
 open Microsoft.FSharp.Core.CompilerServices
 open Samples.FSharp.ProvidedTypes
@@ -61,6 +62,9 @@ module Impl =
         for e in textElems do
             e.ReplaceWith(XText(value))
 
+    let getFields (ty: Type) =
+        ty.GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic) |> Array.toSeq
+
 open Impl
 
 [<TypeProvider>]
@@ -93,14 +97,15 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
         let ctorParams = texts |> Seq.map (fun s -> ProvidedParameter(s, typeof<string>)) |> Seq.toList
         ty.AddMember(ProvidedConstructor(ctorParams, InvokeCode = ctorBody))
         let render (this: Expr) : XElement Expr =
-            let templateExpr = 
-                <@
-                    let templateHtml: string = (%%Expr.FieldGet(this, templateField))
-                    let template = loadXml templateHtml
-                    Impl.replaceText (%%(Expr.Value fields.[0].Name)) (%%(Expr.FieldGet(this, fields.[0]))) template
-                    template
-                @>
-            templateExpr
+            <@
+                let templateHtml: string = (%%Expr.FieldGet(this, templateField))
+                let template = loadXml templateHtml
+                let thisType = (%(Expr.ValueT (ty :> Type)))
+                let reflectedFields = thisType.GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic) |> Array.toSeq
+//                for f in reflectedFields do
+//                    replaceText f.Name (unbox (f.GetValue((%%this:obj)))) template
+                template
+            @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
         ty.AddMember methods
         htmlTy.AddMember ty
