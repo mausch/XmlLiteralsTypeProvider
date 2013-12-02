@@ -17,6 +17,14 @@ module Impl =
         static member Sequentials s = Seq.reduce (fun a b -> Expr.Sequential(a,b)) s
         static member ValueT (v: 'a) : 'a Expr = Expr.Cast(Expr.Value v)
 
+    type ProvidedTypeDefinition with
+        member internal x.DefineStaticParametersAndAdd(parameters, instantiationFunction) =
+            let builder n p =
+                let r = instantiationFunction n p
+                x.AddMember r
+                r
+            x.DefineStaticParameters(parameters, builder)
+
     [<Literal>]
     let xmlns = "http://www.example.com/HtmlTypeProvider"
 
@@ -79,13 +87,12 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
     // Get the assembly and namespace used to house the provided types
     let thisAssembly =  Assembly.GetExecutingAssembly()
     let rootNamespace = "Samples.ShareInfo.TPTest"
-    let baseTy = typeof<obj>
 
-    let htmlTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some baseTy, IsErased = false)
+    let htmlTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
     let buildType (assembly: ProvidedAssembly) typeName (args: obj[]) =
         let html = args.[0] :?> string
         let xelem = loadXml html
-        let ty = ProvidedTypeDefinition(typeName, Some baseTy, IsErased = false)
+        let ty = ProvidedTypeDefinition(typeName, Some typeof<obj>, IsErased = false)
         let templateField = ProvidedField("__template", typeof<string>)
         templateField.SetFieldAttributes FieldAttributes.InitOnly
         ty.AddMember templateField
@@ -114,14 +121,13 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
             @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
         ty.AddMember methods
-        htmlTy.AddMember ty
         ty
 
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
     let providedAssembly = new ProvidedAssembly(providedAssemblyName)
 
     do 
-        htmlTy.DefineStaticParameters([ProvidedStaticParameter("html", typeof<string>)], buildType providedAssembly)
+        htmlTy.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType providedAssembly)
         providedAssembly.AddTypes [htmlTy]
         htmlTy.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         this.AddNamespace(rootNamespace, [htmlTy])
