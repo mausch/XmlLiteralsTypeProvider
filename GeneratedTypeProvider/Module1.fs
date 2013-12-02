@@ -106,10 +106,8 @@ module Impl =
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
                 let reflectedFields = getFields thisType
-                reflectedFields |> Seq.iter (fun f -> printfn "%s" f.Name)
-                //let thisObj : obj = (%%(Expr.Coerce(this, ty)) : obj)
-                //let thisObj : obj = box %%this
-                //reflectedFields |> Seq.iter (replaceTextByField (%%this) template)
+                let thisObj : obj = (%%(Expr.Coerce(this, typeof<obj>)) : obj)
+                reflectedFields |> Seq.iter (replaceTextByField thisObj template)
                 template
             @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
