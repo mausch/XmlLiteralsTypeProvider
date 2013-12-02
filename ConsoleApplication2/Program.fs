@@ -3,6 +3,9 @@
 [<Literal>]
 let testHtml = """
 <html>
+<head>
+	<title><x:text name="title"/></title>
+</head>
 <body>
 	<h1><x:text name="title"/></h1>
 </body>
