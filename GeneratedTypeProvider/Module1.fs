@@ -65,7 +65,7 @@ module Impl =
     let getFields (ty: Type) =
         ty.GetFields(BindingFlags.Instance ||| BindingFlags.NonPublic) |> Array.toSeq
 
-    let replaceTextByField (this: obj) template (f: FieldInfo) =
+    let replaceTextByField (this: 'a) template (f: FieldInfo) =
         let value = f.GetValue this
         replaceText f.Name (unbox value) template
 
@@ -107,8 +107,9 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
                 let reflectedFields = getFields thisType
-                let thisObj = (%%(Expr.Coerce(this, ty)))
-                reflectedFields |> Seq.iter (replaceTextByField thisObj template)
+                //let thisObj : obj = (%%(Expr.Coerce(this, ty)) : obj)
+                //let thisObj : obj = box %%this
+                //reflectedFields |> Seq.iter (replaceTextByField (%%this) template)
                 template
             @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
