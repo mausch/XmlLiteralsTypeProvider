@@ -111,27 +111,26 @@ module Impl =
         ty.AddMember methods
         ty
 
-open Impl
-
-[<TypeProvider>]
-type public HtmlProvider(cfg:TypeProviderConfig) as this =
-    inherit TypeProviderForNamespaces()
-
     // Get the assembly and namespace used to house the provided types
     let thisAssembly =  Assembly.GetExecutingAssembly()
     let rootNamespace = "Samples.ShareInfo.TPTest"
 
-    let htmlTy = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
+    let internal htmlTy = 
+        let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
+        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType)
+        t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
+        t
 
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
-    let providedAssembly = new ProvidedAssembly(providedAssemblyName)
+    let providedAssembly = 
+        let a = new ProvidedAssembly(providedAssemblyName)
+        a.AddTypes [htmlTy]
+        a
 
-    do 
-        htmlTy.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType)
-        providedAssembly.AddTypes [htmlTy]
-        htmlTy.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
-        this.AddNamespace(rootNamespace, [htmlTy])
-        
+[<TypeProvider>]
+type HtmlProvider(cfg:TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces()
+    do this.AddNamespace(Impl.rootNamespace, [Impl.htmlTy])
 
 [<TypeProviderAssembly>]
 do ()
