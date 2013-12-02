@@ -113,17 +113,6 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
         htmlTy.DefineStaticParameters([ProvidedStaticParameter("html", typeof<string>)], buildType providedAssembly)
         providedAssembly.AddTypes [htmlTy]
         htmlTy.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
-
-//        System.AppDomain.CurrentDomain.add_AssemblyResolve(fun _ args ->
-//        let name = System.Reflection.AssemblyName(args.Name)
-//        let existingAssembly = 
-//            System.AppDomain.CurrentDomain.GetAssemblies()
-//            |> Seq.tryFind(fun a -> System.Reflection.AssemblyName.ReferenceMatchesDefinition(name, a.GetName()))
-//        match existingAssembly with
-//        | Some a -> a
-//        | None -> null
-//        )
-
         this.AddNamespace(rootNamespace, [htmlTy])
         
 
