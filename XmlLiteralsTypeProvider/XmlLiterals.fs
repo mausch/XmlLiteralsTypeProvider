@@ -49,13 +49,18 @@ module Impl =
         let xctx = XmlParserContext(null, xnsmgr, null, XmlSpace.Default)
         use ms = stringToStream xml
         let reader = XmlReader.Create(ms, settings, xctx)
-        let xelem = XElement.Load reader
+        let xelem = XElement.Load(reader, LoadOptions.SetLineInfo)
         xelem
 
     let getNameOrFail (e: XElement) =
         let nameAttr = e.Attribute(XName.Get "name")
         if nameAttr = null then 
-            failwithf "Element %s is missing the required 'name' attribute" e.Name.LocalName
+            let li = e :> IXmlLineInfo 
+            let lineNumberInfo = 
+                if li.HasLineInfo()
+                    then sprintf " (line %d, position %d)" li.LineNumber li.LinePosition
+                    else ""
+            failwithf "Element %s%s is missing the required 'name' attribute" e.Name.LocalName lineNumberInfo
         nameAttr.Value
 
     let getTextSplices (x: XElement) =
