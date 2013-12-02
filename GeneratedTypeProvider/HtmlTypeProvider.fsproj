@@ -10,7 +10,7 @@
     <RootNamespace>GeneratedTypeProvider</RootNamespace>
     <AssemblyName>GeneratedTypeProvider</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>GeneratedTypeProvider</Name>
+    <Name>HtmlTypeProvider</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,7 +38,7 @@
   <ItemGroup>
     <Compile Include="ProvidedTypes-head.fsi" />
     <Compile Include="ProvidedTypes-head.fs" />
-    <Compile Include="Module1.fs" />
+    <Compile Include="Html.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />

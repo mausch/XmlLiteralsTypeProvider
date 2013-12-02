@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "GeneratedTypeProvider", "GeneratedTypeProvider\GeneratedTypeProvider.fsproj", "{F3C4E999-644B-4369-862C-A6337F9A4C87}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "HtmlTypeProvider", "GeneratedTypeProvider\HtmlTypeProvider.fsproj", "{F3C4E999-644B-4369-862C-A6337F9A4C87}"
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ConsoleApplication2", "ConsoleApplication2\ConsoleApplication2.fsproj", "{3E5CECA5-C556-4985-B755-8F073F200225}"
 EndProject
