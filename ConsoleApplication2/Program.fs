@@ -12,7 +12,7 @@ let testHtml = """
 </html>
 """
 
-type Template = Samples.ShareInfo.TPTest.Html<testHtml>
+type Template = Samples.ShareInfo.TPTest.Xml<testHtml>
 
 let a = Template(title = "Hello world")
 

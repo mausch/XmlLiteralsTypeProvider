@@ -1,4 +1,4 @@
-﻿namespace Samples.FSharp.ShareInfoProvider
+﻿namespace XmlLiteralsImpl
 
 open System
 open System.Reflection
@@ -26,7 +26,7 @@ module Impl =
             x.DefineStaticParameters(parameters, builder)
 
     [<Literal>]
-    let xmlns = "http://www.example.com/HtmlTypeProvider"
+    let xmlns = "http://www.example.com/XmlLiteralsTypeProvider"
 
     let xnamespace = XNamespace.Get xmlns
     let textElemName = xnamespace + "text"
@@ -39,12 +39,12 @@ module Impl =
         ms.Position <- 0L
         ms :> Stream
 
-    let loadXml html =
+    let loadXml xml =
         let xnsmgr = XmlNamespaceManager(NameTable())
         xnsmgr.AddNamespace("x", xmlns)
         let settings = XmlReaderSettings()
         let xctx = XmlParserContext(null, xnsmgr, null, XmlSpace.Default)
-        use ms = stringToStream html
+        use ms = stringToStream xml
         let reader = XmlReader.Create(ms, settings, xctx)
         let xelem = XElement.Load reader
         xelem
@@ -77,8 +77,8 @@ module Impl =
         replaceText f.Name (unbox value) template
 
     let internal buildType typeName (args: obj[]) =
-        let html = args.[0] :?> string
-        let xelem = loadXml html
+        let xml = args.[0] :?> string
+        let xelem = loadXml xml
         let ty = ProvidedTypeDefinition(typeName, Some typeof<obj>, IsErased = false)
 
         let templateField = ProvidedField("__template", typeof<string>)
@@ -93,7 +93,7 @@ module Impl =
 
         let ctorBody (args: Expr list) : Expr = 
             let this = args.[0]
-            let setTemplate = Expr.FieldSet(this, templateField, Expr.Value html)
+            let setTemplate = Expr.FieldSet(this, templateField, Expr.Value xml)
             let setFields = Seq.zip fields (Seq.skip 1 args) |> Seq.map (fun (f,a) -> Expr.FieldSet(this, f, a))
             Expr.Sequentials [yield setTemplate; yield! setFields]
         let ctorParams = texts |> Seq.map (fun s -> ProvidedParameter(s, typeof<string>)) |> Seq.toList
@@ -101,8 +101,8 @@ module Impl =
 
         let render (this: Expr) : XElement Expr =
             <@
-                let templateHtml: string = %%Expr.FieldGet(this, templateField)
-                let template = loadXml templateHtml
+                let templateXml: string = %%Expr.FieldGet(this, templateField)
+                let template = loadXml templateXml
                 let thisType = %(Expr.ValueT (ty :> Type))
                 let reflectedFields = getFields thisType
                 let thisObj: obj = %%(Expr.Coerce(this, typeof<obj>))
@@ -117,9 +117,9 @@ module Impl =
     let thisAssembly =  Assembly.GetExecutingAssembly()
     let rootNamespace = "Samples.ShareInfo.TPTest"
 
-    let internal htmlTy = 
-        let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Html", Some typeof<obj>, IsErased = false)
-        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("html", typeof<string>)], buildType)
+    let internal xmlTy = 
+        let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Xml", Some typeof<obj>, IsErased = false)
+        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("xml", typeof<string>)], buildType)
         t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
 
@@ -129,13 +129,13 @@ module Impl =
     let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
     let providedAssembly = 
         let a = new ProvidedAssembly(providedAssemblyName)
-        a.AddTypes [htmlTy]
+        a.AddTypes [xmlTy]
         a
 
 [<TypeProvider>]
-type HtmlProvider(cfg:TypeProviderConfig) as this =
+type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
-    do this.AddNamespace(Impl.rootNamespace, [Impl.htmlTy])
+    do this.AddNamespace(Impl.rootNamespace, [Impl.xmlTy])
 
 [<TypeProviderAssembly>]
 do ()

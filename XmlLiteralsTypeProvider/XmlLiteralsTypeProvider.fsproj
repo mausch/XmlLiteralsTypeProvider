@@ -38,7 +38,7 @@
   <ItemGroup>
     <Compile Include="ProvidedTypes-head.fsi" />
     <Compile Include="ProvidedTypes-head.fs" />
-    <Compile Include="Html.fs" />
+    <Compile Include="XmlLiterals.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
