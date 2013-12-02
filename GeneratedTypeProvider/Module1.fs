@@ -102,8 +102,12 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
                 let reflectedFields = getFields thisType
-//                for f in reflectedFields do
-//                    replaceText f.Name (unbox (f.GetValue((%%this:obj)))) template
+                reflectedFields 
+                |> Seq.iter (fun f ->
+                                //let thisObj : obj = (%%this :> obj)
+                                //let value = f.GetValue thisObj
+                                let value = "hello"
+                                replaceText f.Name (unbox value) template)
                 template
             @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
