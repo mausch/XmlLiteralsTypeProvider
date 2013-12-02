@@ -54,6 +54,7 @@ module Impl =
                                 None
                             else
                                 Some e)
+            |> Seq.toList |> List.toSeq
         for e in textElems do
             e.ReplaceWith(XText(value))
         
@@ -97,7 +98,7 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 <@
                     let templateHtml: string = (%%Expr.FieldGet(this, templateField))
                     let template = Impl.loadXml templateHtml
-                    Impl.replaceText fields.[0].Name (%%(Expr.FieldGet(this, fields.[0]))) template
+                    Impl.replaceText "title" (%%(Expr.FieldGet(this, fields.[0]))) template
                 @>
             templateExpr
 //            let replace (t: XElement Expr) (f: ProvidedField) =
