@@ -107,7 +107,8 @@ type public HtmlProvider(cfg:TypeProviderConfig) as this =
                 let template = loadXml templateHtml
                 let thisType = (%(Expr.ValueT (ty :> Type)))
                 let reflectedFields = getFields thisType
-                reflectedFields |> Seq.iter (replaceTextByField (%%this) template)
+                let thisObj = (%%(Expr.Coerce(this, ty)))
+                reflectedFields |> Seq.iter (replaceTextByField thisObj template)
                 template
             @>
         let methods = ProvidedMethod("Render", [], typeof<XElement>, InvokeCode = fun args -> render args.[0] :> _)
