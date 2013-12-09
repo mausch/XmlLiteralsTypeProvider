@@ -28,6 +28,11 @@ module Impl =
     let internal createProvidedInstanceMethod methodName parameters (body: (Expr * Expr list) -> 'a Expr) =
         ProvidedMethod(methodName, parameters, typeof<'a>, InvokeCode = fun args -> body (args.[0], Seq.skip 1 args |> Seq.toList) :> _) :> MemberInfo
 
+    let internal createProvidedAssembly name types =
+        let a = ProvidedAssembly(name)
+        a.AddTypes types
+        a
+
     [<Literal>]
     let xmlns = "http://www.example.com/XmlLiteralsTypeProvider"
 
@@ -131,19 +136,14 @@ module Impl =
         t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
 
-    // this isn't used apparently, but it throws a compile-time error if removed:
-    // FSC : error FS2014: A problem occurred writing the binary 'obj\Debug\ConsoleApplication2.exe': Error in pass3 for type FSharpLib, error: One of your modules
-    // expects the type 'FSharpLib.Template' to be defined within the module being emitted.  You may be missing an input file
-    let providedAssemblyName = System.IO.Path.ChangeExtension(System.IO.Path.GetTempFileName(), ".dll")
-    let providedAssembly = 
-        let a = new ProvidedAssembly(providedAssemblyName)
-        a.AddTypes [xmlTy]
-        a
-
 [<TypeProvider>]
 type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
-    do this.AddNamespace(Impl.rootNamespace, [Impl.xmlTy])
+    do
+        let types = [Impl.xmlTy]
+        let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
+        Impl.createProvidedAssembly providedAssemblyName types |> ignore
+        this.AddNamespace(Impl.rootNamespace, types)
 
 [<TypeProviderAssembly>]
 do ()
