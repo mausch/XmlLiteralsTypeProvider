@@ -139,11 +139,11 @@ module Impl =
 [<TypeProvider>]
 type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
-    do
-        let types = [Impl.xmlTy]
+    static do
         let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
-        Impl.createProvidedAssembly providedAssemblyName types |> ignore
-        this.AddNamespace(Impl.rootNamespace, types)
+        Impl.createProvidedAssembly providedAssemblyName [Impl.xmlTy] |> ignore
+    do
+        this.AddNamespace(Impl.rootNamespace, [Impl.xmlTy])
 
 [<TypeProviderAssembly>]
 do ()
