@@ -1,4 +1,4 @@
-﻿module FSharpLib
+﻿module Tests
 
 [<Literal>]
 let testHtml = """

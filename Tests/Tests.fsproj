@@ -8,9 +8,9 @@
     <ProjectGuid>3e5ceca5-c556-4985-b755-8f073f200225</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ConsoleApplication2</RootNamespace>
-    <AssemblyName>ConsoleApplication2</AssemblyName>
+    <AssemblyName>Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>ConsoleApplication2</Name>
+    <Name>Tests</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

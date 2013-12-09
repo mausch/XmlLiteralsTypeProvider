@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "ConsoleApplication2", "ConsoleApplication2\ConsoleApplication2.fsproj", "{3E5CECA5-C556-4985-B755-8F073F200225}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Tests", "Tests\Tests.fsproj", "{3E5CECA5-C556-4985-B755-8F073F200225}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpApp", "CSharpApp\CSharpApp.csproj", "{A272875D-9A17-4645-87E6-2FDA0423A891}"
 EndProject

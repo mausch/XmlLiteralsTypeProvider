@@ -46,9 +46,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ConsoleApplication2\ConsoleApplication2.fsproj">
+    <ProjectReference Include="..\Tests\Tests.fsproj">
       <Project>{3e5ceca5-c556-4985-b755-8f073f200225}</Project>
-      <Name>ConsoleApplication2</Name>
+      <Name>Tests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
