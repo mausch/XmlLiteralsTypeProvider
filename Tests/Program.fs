@@ -1,7 +1,7 @@
 ﻿module Tests
 
 [<Literal>]
-let testHtml = """
+let textHoles = """
 <html>
 <head>
 	<title><x:text name="title"/></title>
@@ -13,8 +13,18 @@ let testHtml = """
 </html>
 """
 
-type Template = XmlLiterals.Xml<testHtml>
+type TextHolesTemplate = XmlLiterals.Xml<textHoles>
 
-let a = Template(title = "Hello world", mainText = "Bye world")
-let rendered = a.Render()
-printfn "%A" rendered
+open Fuchu
+
+let tests = 
+    TestList [
+        testCase "Text holes" <| fun _ ->
+            
+            let a = TextHolesTemplate(title = "Hello world", mainText = "Bye world")
+            let rendered = a.Render()
+            printfn "%A" rendered
+    ]
+
+[<EntryPoint>]
+let main args = run tests

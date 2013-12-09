@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace CSharpTests {
     class Program {
         static void Main(string[] args) {
-            var template = new Tests.Template(title: "Hello world", mainText: "Bye world");
+            var template = new Tests.TextHolesTemplate(title: "Hello world", mainText: "Bye world");
             Console.WriteLine(template.Render().ToString());
         }
     }
