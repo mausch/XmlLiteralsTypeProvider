@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CSharpApp {
+namespace CSharpTests {
     class Program {
         static void Main(string[] args) {
             var template = new Tests.Template(title: "Hello world", mainText: "Bye world");
