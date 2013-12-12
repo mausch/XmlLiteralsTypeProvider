@@ -15,14 +15,15 @@ let textHoles = """
 """
 
 type TextHolesTemplate = XmlLiterals.Xml<textHoles>
-type TextHolesFileTemplate = XmlLiterals.Xml<"sample.html">
+type TextHolesFileTemplate = XmlLiterals.XmlFile<"sample.html">
+
 
 open Fuchu
 open Helpers
 
 let tests = 
     TestList [
-        testCase "Text holes" <| fun _ ->
+        test "Text holes" {
             
             let a = TextHolesTemplate(title = "Hello world", mainText = "Bye world")
             let rendered = a.Render()
@@ -39,6 +40,13 @@ let tests =
 """
             Assert.XmlEqual(expected, rendered)
             //printfn "%A" rendered
+        }
+
+        test "Text holes from file" {
+            let a = TextHolesFileTemplate(title = "", mainText = "")
+            ()
+        }
+            
     ]
 
 [<EntryPoint>]

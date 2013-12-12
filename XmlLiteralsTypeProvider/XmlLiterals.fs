@@ -11,7 +11,6 @@ open System.Runtime.Serialization
 open System.Xml
 open System.Xml.Linq
 
-
 module Impl =
     type Expr with
         static member Sequentials s = Seq.reduce (fun a b -> Expr.Sequential(a,b)) s
@@ -39,13 +38,6 @@ module Impl =
     let xnamespace = XNamespace.Get xmlns
     let textElemName = xnamespace + "text"
 
-    // This is a minimal reproduction of the logic found in FSharp.Data at
-    // https://github.com/fsharp/FSharp.Data/blob/master/src/CommonProviderImplementation/Helpers.fs#L105
-    let tryGetUri str =
-        match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
-        | false, _ -> None
-        | true, uri -> if not uri.IsAbsoluteUri then None else Some uri
-
     let stringToStream (s: string) = 
         let ms = new MemoryStream()
         let writer = new StreamWriter(ms)
@@ -59,10 +51,7 @@ module Impl =
         xnsmgr.AddNamespace("x", xmlns)
         let settings = XmlReaderSettings()
         let xctx = XmlParserContext(null, xnsmgr, null, XmlSpace.Default)
-        use ms =
-            match tryGetUri xml with
-            | Some uri -> File.OpenRead(uri.AbsolutePath) :> Stream
-            | None     -> stringToStream xml
+        use ms = stringToStream xml
         use reader = XmlReader.Create(ms, settings, xctx)
         let xelem = XElement.Load(reader, LoadOptions.SetLineInfo)
         xelem
@@ -99,8 +88,7 @@ module Impl =
         let value = f.GetValue this
         replaceText f.Name (unbox value) template
 
-    let internal buildType typeName (args: obj[]) =
-        let xml = args.[0] :?> string
+    let internal buildTypeFromXml typeName xml =
         let xelem = loadXml xml
         let ty = ProvidedTypeDefinition(typeName, Some typeof<obj>, IsErased = false)
 
@@ -136,24 +124,41 @@ module Impl =
         ty.AddMember renderMethod
         ty
 
+    let internal buildTypeFromString typeName (args: obj[]) =
+        let xml = args.[0] :?> string
+        buildTypeFromXml typeName xml
+
+    let internal buildTypeFromFile typeName (args: obj[]) =
+        let file = args.[0] :?> string
+        if not (File.Exists(file)) then failwith ("File not found: " + file)
+        let xml = File.ReadAllText file
+        buildTypeFromXml typeName xml
+
     // Get the assembly and namespace used to house the provided types
     let thisAssembly =  Assembly.GetExecutingAssembly()
     let rootNamespace = "XmlLiterals"
 
     let internal xmlTy = 
         let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Xml", Some typeof<obj>, IsErased = false)
-        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("xml", typeof<string>)], buildType)
-        t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
+        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("xml", typeof<string>)], buildTypeFromString)
+        //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
+
+    let internal xmlFileTy = 
+        let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "XmlFile", Some typeof<obj>, IsErased = false)
+        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("file", typeof<string>)], buildTypeFromFile)
+        //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
+        t
+
+    let internal baseTypes = [xmlTy; xmlFileTy]
 
 [<TypeProvider>]
 type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
-    static do
-        let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
-        Impl.createProvidedAssembly providedAssemblyName [Impl.xmlTy] |> ignore
     do
-        this.AddNamespace(Impl.rootNamespace, [Impl.xmlTy])
+        let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
+        Impl.createProvidedAssembly providedAssemblyName Impl.baseTypes |> ignore
+        this.AddNamespace(Impl.rootNamespace, Impl.baseTypes)
 
 [<TypeProviderAssembly>]
 do ()
