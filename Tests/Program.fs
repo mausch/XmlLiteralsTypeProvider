@@ -4,7 +4,7 @@
 let testHtml = """
 <html>
 <head>
-	<title><x:text name="title"/></title>
+    <title><x:text name="title"/></title>
 </head>
 <body>
     <h1><x:text name="title"/></h1>
@@ -13,7 +13,7 @@ let testHtml = """
 </html>
 """
 
-type Template = XmlLiterals.Xml<testHtml>
+type Template = XmlLiterals.Xml<"sample.html">
 
 let a = Template(title = "Hello world", mainText = "Bye world")
 let rendered = a.Render()

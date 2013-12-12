@@ -39,6 +39,13 @@ module Impl =
     let xnamespace = XNamespace.Get xmlns
     let textElemName = xnamespace + "text"
 
+    // This is a minimal reproduction of the logic found in FSharp.Data at
+    // https://github.com/fsharp/FSharp.Data/blob/master/src/CommonProviderImplementation/Helpers.fs#L105
+    let tryGetUri str =
+        match Uri.TryCreate(str, UriKind.RelativeOrAbsolute) with
+        | false, _ -> None
+        | true, uri -> if not uri.IsAbsoluteUri then None else Some uri
+
     let stringToStream (s: string) = 
         let ms = new MemoryStream()
         let writer = new StreamWriter(ms)
@@ -52,8 +59,11 @@ module Impl =
         xnsmgr.AddNamespace("x", xmlns)
         let settings = XmlReaderSettings()
         let xctx = XmlParserContext(null, xnsmgr, null, XmlSpace.Default)
-        use ms = stringToStream xml
-        let reader = XmlReader.Create(ms, settings, xctx)
+        use ms =
+            match tryGetUri xml with
+            | Some uri -> File.OpenRead(uri.AbsolutePath) :> Stream
+            | None     -> stringToStream xml
+        use reader = XmlReader.Create(ms, settings, xctx)
         let xelem = XElement.Load(reader, LoadOptions.SetLineInfo)
         xelem
 
