@@ -8,7 +8,7 @@
     <ProjectGuid>f3c4e999-644b-4369-862c-a6337f9a4c87</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>GeneratedTypeProvider</RootNamespace>
-    <AssemblyName>GeneratedTypeProvider</AssemblyName>
+    <AssemblyName>XmlLiteralsTypeProvider</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Name>XmlLiteralsTypeProvider</Name>
   </PropertyGroup>
@@ -20,7 +20,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <DocumentationFile>bin\Debug\GeneratedTypeProvider.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\XmlLiteralsTypeProvider.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>

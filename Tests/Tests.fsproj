@@ -49,6 +49,9 @@
     <Reference Include="System.Numerics" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="XmlLiteralsTypeProvider">
+      <HintPath>..\XmlLiteralsTypeProvider\bin\Debug\XmlLiteralsTypeProvider.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers.fs" />
@@ -58,13 +61,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XmlLiteralsTypeProvider\XmlLiteralsTypeProvider.fsproj">
-      <Name>XmlLiteralsTypeProvider</Name>
-      <Project>{f3c4e999-644b-4369-862c-a6337f9a4c87}</Project>
-      <Private>True</Private>
-    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>
