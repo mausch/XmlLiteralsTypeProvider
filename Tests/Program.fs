@@ -1,10 +1,11 @@
 ﻿module Tests
 
+
 [<Literal>]
 let textHoles = """
 <html>
 <head>
-	<title><x:text name="title"/></title>
+    <title><x:text name="title"/></title>
 </head>
 <body>
     <h1><x:text name="title"/></h1>
@@ -16,6 +17,7 @@ let textHoles = """
 type TextHolesTemplate = XmlLiterals.Xml<textHoles>
 
 open Fuchu
+open Helpers
 
 let tests = 
     TestList [
@@ -23,7 +25,19 @@ let tests =
             
             let a = TextHolesTemplate(title = "Hello world", mainText = "Bye world")
             let rendered = a.Render()
-            printfn "%A" rendered
+            let expected = """
+<html>
+<head>
+    <title>Hello world</title>
+</head>
+<body>
+    <h1>Hello world</h1>
+    <p>Bye world</p>
+</body>
+</html>
+"""
+            Assert.XmlEqual(expected, rendered)
+            //printfn "%A" rendered
     ]
 
 [<EntryPoint>]
