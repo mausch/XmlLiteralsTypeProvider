@@ -15,6 +15,7 @@ let textHoles = """
 """
 
 type TextHolesTemplate = XmlLiterals.Xml<textHoles>
+type TextHolesFileTemplate = XmlLiterals.Xml<"sample.html">
 
 open Fuchu
 open Helpers
