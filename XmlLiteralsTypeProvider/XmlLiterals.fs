@@ -126,7 +126,10 @@ module Impl =
 
     let internal buildTypeFromString typeName (args: obj[]) =
         let input = args.[0] :?> string
-        let xml = if File.Exists input then File.ReadAllText input else input
+        let isUri, uri = Uri.TryCreate(input, UriKind.RelativeOrAbsolute)
+        // TODO: test whether the uri is a web URI.
+        // if uri.IsAbsoluteUri then readFromWeb uri.AbsoluteUri
+        let xml = if isUri then File.ReadAllText uri.OriginalString else input
         buildTypeFromXml typeName xml
 
     // Get the assembly and namespace used to house the provided types
