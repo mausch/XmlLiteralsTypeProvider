@@ -125,13 +125,11 @@ module Impl =
         ty
 
     let internal buildTypeFromString typeName (args: obj[]) =
-        let xml = args.[0] :?> string
-        buildTypeFromXml typeName xml
-
-    let internal buildTypeFromFile typeName (args: obj[]) =
-        let file = args.[0] :?> string
-        if not (File.Exists(file)) then failwith ("File not found: " + file)
-        let xml = File.ReadAllText file
+        let input = args.[0] :?> string
+        let isUri, uri = Uri.TryCreate(input, UriKind.RelativeOrAbsolute)
+        // TODO: test whether the uri is a web URI.
+        // if uri.IsAbsoluteUri then readFromWeb uri.AbsoluteUri
+        let xml = if isUri then File.ReadAllText uri.OriginalString else input
         buildTypeFromXml typeName xml
 
     // Get the assembly and namespace used to house the provided types
@@ -144,13 +142,7 @@ module Impl =
         //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
 
-    let internal xmlFileTy = 
-        let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "XmlFile", Some typeof<obj>, IsErased = false)
-        t.DefineStaticParametersAndAdd([ProvidedStaticParameter("file", typeof<string>)], buildTypeFromFile)
-        //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
-        t
-
-    let internal baseTypes = [xmlTy; xmlFileTy]
+    let internal baseTypes = [xmlTy]
 
 [<TypeProvider>]
 type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =

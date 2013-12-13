@@ -14,8 +14,8 @@ let textHoles = """
 </html>
 """
 
-type TextHolesTemplate = XmlLiterals.Xml<textHoles>
-type TextHolesFileTemplate = XmlLiterals.XmlFile<"sample.html">
+//type TextHolesTemplate = XmlLiterals.Xml<textHoles>
+type TextHolesTemplate = XmlLiterals.Xml<"sample.html">
 
 
 open Fuchu
@@ -40,11 +40,6 @@ let tests =
 """
             Assert.XmlEqual(expected, rendered)
             //printfn "%A" rendered
-        }
-
-        test "Text holes from file" {
-            let a = TextHolesFileTemplate(title = "", mainText = "")
-            ()
         }
             
     ]
