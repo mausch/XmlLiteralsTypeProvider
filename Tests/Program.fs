@@ -43,8 +43,21 @@ let tests =
         }
 
         test "Text holes from file" {
-            let a = TextHolesFileTemplate(title = "", mainText = "")
-            ()
+            let a = TextHolesFileTemplate(title = "Hi everyone", mainText = "Bye everyone")
+            let rendered = a.Render()
+            let expected = """
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Hi everyone</title>
+</head>
+<body>
+    <h1>Hi everyone</h1>
+    <p>Bye everyone</p>
+</body>
+</html>
+"""
+            Assert.XmlEqual(expected, rendered)
         }
             
     ]

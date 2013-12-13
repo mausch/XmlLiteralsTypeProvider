@@ -141,24 +141,28 @@ module Impl =
     let internal xmlTy = 
         let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "Xml", Some typeof<obj>, IsErased = false)
         t.DefineStaticParametersAndAdd([ProvidedStaticParameter("xml", typeof<string>)], buildTypeFromString)
-        //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
 
     let internal xmlFileTy = 
         let t = ProvidedTypeDefinition(thisAssembly, rootNamespace, "XmlFile", Some typeof<obj>, IsErased = false)
         t.DefineStaticParametersAndAdd([ProvidedStaticParameter("file", typeof<string>)], buildTypeFromFile)
-        //t.AddMember(ProvidedConstructor(parameters = [], InvokeCode = fun args -> <@@ obj() @@>))
         t
-
-    let internal baseTypes = [xmlTy; xmlFileTy]
 
 [<TypeProvider>]
 type XmlLiteralsProvider(cfg:TypeProviderConfig) as this =
     inherit TypeProviderForNamespaces()
     do
         let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
-        Impl.createProvidedAssembly providedAssemblyName Impl.baseTypes |> ignore
-        this.AddNamespace(Impl.rootNamespace, Impl.baseTypes)
+        Impl.createProvidedAssembly providedAssemblyName [Impl.xmlTy] |> ignore
+        this.AddNamespace(Impl.rootNamespace, [Impl.xmlTy])
+
+[<TypeProvider>]
+type XmlLiteralsFileProvider(cfg:TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces()
+    do
+        let providedAssemblyName = Path.ChangeExtension(Path.GetTempFileName(), ".dll")
+        Impl.createProvidedAssembly providedAssemblyName [Impl.xmlFileTy] |> ignore
+        this.AddNamespace(Impl.rootNamespace, [Impl.xmlFileTy])
 
 [<TypeProviderAssembly>]
 do ()
