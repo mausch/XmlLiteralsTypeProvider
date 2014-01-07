@@ -17,6 +17,19 @@ let textHoles = """
 type TextHolesTemplate = XmlLiterals.Xml<textHoles>
 type TextHolesFileTemplate = XmlLiterals.XmlFile<"sample.html">
 
+[<Literal>]
+let textHoles2 = """
+<html>
+<head>
+    <title><x:text name="title"/></title>
+</head>
+<body>
+    <h1><x:text name="title"/></h1>
+</body>
+</html>
+"""
+
+type TextHolesTemplate2 = XmlLiterals.Xml<textHoles2>
 
 open Fuchu
 open Helpers
@@ -40,6 +53,22 @@ let tests =
 """
             Assert.XmlEqual(expected, rendered)
             //printfn "%A" rendered
+        }
+
+        test "Text holes 2" {
+            let a = TextHolesTemplate2(title = "Hello world")
+            let rendered = a.Render()
+            let expected = """
+<html>
+<head>
+    <title>Hello world</title>
+</head>
+<body>
+    <h1>Hello world</h1>
+</body>
+</html>
+"""
+            Assert.XmlEqual(expected, rendered)
         }
 
         test "Text holes from file" {
